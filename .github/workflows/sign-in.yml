@@ -7,7 +7,7 @@ on:
     - cron: "0 23 * * *"
 
 permissions:
-  contents: read
+  contents: write # 必须设为 write 权限，以便保活 Action 提交 dummy commit
 
 concurrency:
   group: skland-sign-in
@@ -65,3 +65,10 @@ jobs:
 
       - name: Run sign-in
         run: python main.py
+
+      # ===== 自动保活步骤 =====
+      - name: Keepalive Workflow
+        uses: gautamkrishnar/keepalive-workflow@v2
+        with:
+          commit_message: "chore: keepalive workflow"
+          time_elapsed: 50
