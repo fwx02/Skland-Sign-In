@@ -7,7 +7,7 @@ on:
     - cron: "0 23 * * *"
 
 permissions:
-  contents: write # 必须设为 write 权限，以便保活 Action 提交 dummy commit
+  contents: write # 必须设为 write 权限，以便保活提交
 
 concurrency:
   group: skland-sign-in
@@ -21,8 +21,6 @@ jobs:
 
     env:
       TZ: Asia/Shanghai
-      # 强制使用 Node.js 24 运行官方 Actions 插件，以消除 Node.js 20 弃用警告
-      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
     steps:
       - name: Checkout
@@ -66,9 +64,10 @@ jobs:
       - name: Run sign-in
         run: python main.py
 
-      # ===== 自动保活步骤 =====
+      # ===== 自动保活步骤（原生实现，不依赖第三方 Action） =====
       - name: Keepalive Workflow
-        uses: gautamkrishnar/keepalive-workflow@v2
-        with:
-          commit_message: "chore: keepalive workflow"
-          time_elapsed: 50
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git commit --allow-empty -m "chore: keepalive workflow [skip ci]" || exit 0
+          git push
